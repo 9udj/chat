@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مساعدي الشخصي</title>
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="/manifest.json">
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --card: #273549;
+    --border: #334155;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent-bg: #0c4a6e22;
+    --danger: #f87171;
+    --danger-bg: #450a0a33;
+    --success: #4ade80;
+    --success-bg: #052e1633;
+    --purple: #a78bfa;
+    --purple-bg: #2e106533;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); height: 100dvh; display: flex; flex-direction: column; }
+
+  /* Header */
+  .header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .header-av { width: 38px; height: 38px; border-radius: 50%; background: var(--accent-bg); border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .header-info { flex: 1; }
+  .header-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .header-status { font-size: 11px; color: var(--success); display: flex; align-items: center; gap: 4px; }
+  .header-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
+  .header-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .htag { font-size: 10px; padding: 2px 7px; border-radius: 10px; border: 1px solid var(--border); color: var(--muted); }
+
+  /* Messages */
+  .msgs { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
+  .msgs::-webkit-scrollbar { width: 4px; }
+  .msgs::-webkit-scrollbar-track { background: transparent; }
+  .msgs::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .row { display: flex; gap: 8px; align-items: flex-end; }
+  .row.me { flex-direction: row-reverse; }
+  .av-sm { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .av-ai { background: var(--accent-bg); border: 1px solid var(--accent); }
+  .av-me { background: var(--purple-bg); border: 1px solid var(--purple); }
+
+  .bub { max-width: 78%; padding: 9px 13px; font-size: 14px; line-height: 1.6; }
+  .bub-ai { background: var(--card); border: 1px solid var(--border); border-radius: 14px 14px 14px 3px; color: var(--text); }
+  .bub-me { background: var(--accent-bg); border: 1px solid var(--accent); border-radius: 14px 14px 3px 14px; color: var(--accent); }
+
+  /* Special bubbles */
+  .bub-warn { background: var(--danger-bg); border: 1px solid var(--danger); border-radius: 12px; padding: 10px 14px; font-size: 13px; color: var(--danger); max-width: 90%; }
+  .bub-idea { background: var(--success-bg); border: 1px solid var(--success); border-radius: 12px; padding: 10px 14px; font-size: 13px; color: var(--success); max-width: 90%; }
+
+  .stag { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 8px; margin-bottom: 5px; letter-spacing: .03em; }
+  .stag-sec { background: var(--danger-bg); color: var(--danger); }
+  .stag-idea { background: var(--success-bg); color: var(--success); }
+  .stag-net { background: var(--accent-bg); color: var(--accent); }
+  .stag-emb { background: var(--purple-bg); color: var(--purple); }
+
+  /* Typing */
+  .dot-row { display: flex; gap: 4px; align-items: center; padding: 3px 0; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: bounce 1s infinite; }
+  .dot:nth-child(2) { animation-delay: .2s; }
+  .dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+
+  /* Quick chips */
+  .chips { display: flex; gap: 6px; padding: 8px 14px; overflow-x: auto; border-top: 1px solid var(--border); background: var(--surface); }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { font-size: 12px; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); cursor: pointer; white-space: nowrap; background: var(--card); transition: all .15s; flex-shrink: 0; }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Input */
+  .inputrow { display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--border); background: var(--surface); }
+  .inp { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 9px 13px; font-size: 14px; color: var(--text); font-family: inherit; resize: none; line-height: 1.4; transition: border .15s; }
+  .inp:focus { outline: none; border-color: var(--accent); }
+  .inp::placeholder { color: var(--muted); }
+  .sbtn { width: 40px; height: 40px; border-radius: 12px; background: var(--accent); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; transition: opacity .15s; }
+  .sbtn:hover { opacity: .85; }
+  .sbtn:active { transform: scale(.95); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-av">🤖</div>
+  <div class="header-info">
+    <div class="header-name">مساعدي الشخصي</div>
+    <div class="header-status">متصل · جاهز</div>
+  </div>
+  <div class="header-tags">
+    <span class="htag">🔒 أمن</span>
+    <span class="htag">🌐 شبكة</span>
+    <span class="htag">⚙️ إمبدد</span>
+  </div>
+</div>
+
+<div class="msgs" id="msgs">
+  <div class="row">
+    <div class="av-sm av-ai">🤖</div>
+    <div class="bub bub-ai">
+      أهلاً! أنا مساعدك الشخصي 👋<br>
+      عارف اهتماماتك — <strong>أمن سيبراني، شبكات، إمبدد</strong>.<br>
+      سولفني، اسألني، أو شاركني فكرة — وأنا هنا!
+    </div>
+  </div>
+</div>
+
+<div class="chips" id="chips">
+  <div class="chip" onclick="ask('وش أهم نصايح الأمان اللي لازم أطبقها الحين؟')">🔒 نصايح أمان</div>
+  <div class="chip" onclick="ask('رتب لي أفكاري عن الشبكة والسيرفرات')">🌐 رتب أفكار شبكة</div>
+  <div class="chip" onclick="ask('عندي فكرة جديدة في إمبدد، ساعدني أرتبها')">⚙️ فكرة إمبدد</div>
+  <div class="chip" onclick="ask('اشرح لي الفرق بين VPN و Zero Trust')">🔐 VPN vs Zero Trust</div>
+  <div class="chip" onclick="ask('وش أحسن طريقة تأمين سيرفر Linux؟')">🐧 تأمين Linux</div>
+</div>
+
+<div class="inputrow">
+  <button class="sbtn" onclick="send()" aria-label="إرسال">➤</button>
+  <textarea class="inp" id="inp" rows="1" placeholder="سولفني أو اسأل عن أمان، شبكة، إمبدد..."></textarea>
+</div>
+
+<script>
+  // الذاكرة — تُحفظ في المتصفح
+  let history = JSON.parse(localStorage.getItem('chat_history') || '[]');
+
+  // عرض المحادثات السابقة
+  history.forEach(m => {
+    if (m.role === 'user') addBubble(m.content, 'me', false);
+    else addBubble(m.content, 'ai', false);
+  });
+  if (history.length > 0) scrollBottom();
+
+  function addBubble(text, who, scroll = true) {
+    const msgs = document.getElementById('msgs');
+    const row = document.createElement('div');
+    row.className = 'row' + (who === 'me' ? ' me' : '');
+    const isWarn = who === 'ai' && text.includes('⚠️');
+    const bubClass = who === 'me' ? 'bub-me' : (isWarn ? 'bub-warn' : 'bub-ai');
+    const avClass = who === 'me' ? 'av-me' : 'av-ai';
+    const avIcon = who === 'me' ? '👤' : '🤖';
+    row.innerHTML = `<div class="av-sm ${avClass}">${avIcon}</div><div class="bub ${bubClass}">${text.replace(/\n/g,'<br>')}</div>`;
+    msgs.appendChild(row);
+    if (scroll) scrollBottom();
+    return row;
+  }
+
+  function addTyping() {
+    const msgs = document.getElementById('msgs');
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `<div class="av-sm av-ai">🤖</div><div class="bub bub-ai"><div class="dot-row"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>`;
+    msgs.appendChild(row);
+    scrollBottom();
+    return row;
+  }
+
+  function scrollBottom() {
+    const msgs = document.getElementById('msgs');
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function saveHistory() {
+    // احفظ آخر 40 رسالة فقط
+    if (history.length > 40) history = history.slice(-40);
+    localStorage.setItem('chat_history', JSON.stringify(history));
+  }
+
+  async function callAPI(userText) {
+    history.push({ role: 'user', content: userText });
+    saveHistory();
+    const typing = addTyping();
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history })
+      });
+      const data = await res.json();
+      const reply = data.reply || 'ما وصل الرد.';
+      history.push({ role: 'assistant', content: reply });
+      saveHistory();
+      typing.querySelector('.bub').innerHTML = reply.replace(/\n/g, '<br>');
+      scrollBottom();
+    } catch (e) {
+      typing.querySelector('.bub').innerHTML = '⚠️ ما قدرت أتصل بالخادم.';
+    }
+  }
+
+  function ask(q) {
+    document.getElementById('inp').value = q;
+    send();
+  }
+
+  function send() {
+    const inp = document.getElementById('inp');
+    const text = inp.value.trim();
+    if (!text) return;
+    inp.value = '';
+    inp.style.height = 'auto';
+    addBubble(text, 'me');
+    callAPI(text);
+  }
+
+  // Auto resize textarea
+  document.getElementById('inp').addEventListener('input', function () {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+
+  document.getElementById('inp').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+</script>
+</body>
+</html>
